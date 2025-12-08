@@ -1,6 +1,6 @@
-# Coding Interview Platform
 
-This folder contains the end‑to‑end coding interview application for the Week 2 homework.
+
+This folder contains the end‑to‑end coding application for the Week 2 homework.
 
 Currently only the backend (API + WebSocket server) is implemented in `server/`. The frontend will be added later.
 
