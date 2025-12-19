@@ -11,3 +11,4 @@ Homework:
 
 * [Module 1: Overview](01-overview/homework.md)
 * [Module 2: End-To-End Application](02-end-to-end/homework.md)
+* [Module 3: MCP](03-mcp/homework.md)
