@@ -1,27 +1,26 @@
 # PR Buddy — AI-assisted development notes
 
-## Objetivo
+## Objective
 
-Construir um MVP focado em **reviews consistentes** a partir de diffs, com um contrato OpenAPI, persistência, testes, docker-compose e documentação, alinhado com a rubrica em `project/data.json`.
+Build an MVP focused on **consistent reviews** from diffs, with an OpenAPI contract, persistence, tests, docker-compose, and documentation, aligned with the rubric in `project/data.json`.
 
-## Como a IA ajudou (exemplos)
+## How AI helped (examples)
 
-- **Definição de contrato**: iterar sobre endpoints e schemas do `project/openapi.yaml` para suportar UI + histórico + políticas + métricas.
-- **Parsing do diff**: gerar uma versão inicial do parser de unified diff e depois endurecer com testes unitários (files/hunks/linhas).
-- **Heurísticas**: brainstorm/iteração de padrões (riscos, sugestões, nitpicks) com outputs previsíveis.
-- **Refino de UX**: organizar UI e centralizar chamadas ao backend num único módulo (`project/src/web/apiClient.js`).
+- **Contract definition**: iterate on endpoints and schemas in `project/openapi.yaml` to support UI + history + policies + metrics.
+- **Diff parsing**: generate an initial unified diff parser and harden it with unit tests (files/hunks/lines).
+- **Heuristics**: brainstorm/iterate on patterns (risks, suggestions, nitpicks) with predictable outputs.
+- **UX refinement**: structure the UI and centralize backend calls in a single module (`project/src/web/apiClient.js`).
 
 ## MCP (Model Context Protocol)
 
-O objetivo do MCP aqui é facilitar o “agentic workflow” (assistente com ferramentas), principalmente:
+The goal of MCP here is to enable an “agentic workflow” (assistant with tools), mainly:
 
-- **GitHub MCP**: obter diffs e metadados de PRs de forma programática, evitando copy/paste.
-- **Filesystem MCP**: ler ficheiros de testes/configs do repo alvo para dar contexto ao review.
+- **GitHub MCP**: fetch diffs and PR metadata programmatically, avoiding copy/paste.
+- **Filesystem MCP**: read tests/config files from the target repo to provide extra context to the review.
 
-Exemplo de configuração e boas práticas: `project/mcp/README.md`.
+Example config and best practices: `project/mcp/README.md`.
 
 ## Notas
 
-- O modo `heuristic` é determinístico e adequado para CI/offline.
-- O modo `openai` é opcional e usa `OPENAI_API_KEY` para gerar o review mantendo o mesmo schema de output.
-
+- `heuristic` mode is deterministic and suitable for CI/offline.
+- `openai` mode is optional and uses `OPENAI_API_KEY` to generate a review while keeping the same output schema.

@@ -34,7 +34,7 @@ export function createApp({ db, config }) {
         const body = await readJson(req, { maxBytes: config.maxBodyBytes });
         const source = body?.source;
         if (source !== "diff" && source !== "github") {
-          throw new HttpError(400, "invalid_source", "source deve ser diff|github");
+          throw new HttpError(400, "invalid_source", "source must be diff|github");
         }
 
         const options = body?.options ?? {};
@@ -42,10 +42,10 @@ export function createApp({ db, config }) {
         const prUrl = body?.prUrl ?? null;
 
         if (source === "diff" && typeof diff !== "string") {
-          throw new HttpError(400, "diff_required", "diff é obrigatório quando source=diff");
+          throw new HttpError(400, "diff_required", "diff is required when source=diff");
         }
         if (source === "github" && typeof prUrl !== "string") {
-          throw new HttpError(400, "pr_url_required", "prUrl é obrigatório quando source=github");
+          throw new HttpError(400, "pr_url_required", "prUrl is required when source=github");
         }
 
         const policy =
@@ -97,7 +97,7 @@ export function createApp({ db, config }) {
         const id = url.pathname.split("/").at(-1);
         const review = await db.getReview(id);
         if (!review) {
-          throw new HttpError(404, "not_found", "Review não encontrado");
+          throw new HttpError(404, "not_found", "Review not found");
         }
         return sendJson(res, 200, { review });
       }
@@ -112,10 +112,10 @@ export function createApp({ db, config }) {
         const name = body?.name;
         const rules = body?.rules;
         if (typeof name !== "string" || name.trim().length === 0) {
-          throw new HttpError(400, "invalid_name", "name é obrigatório");
+          throw new HttpError(400, "invalid_name", "name is required");
         }
         if (typeof rules !== "object" || rules === null) {
-          throw new HttpError(400, "invalid_rules", "rules é obrigatório");
+          throw new HttpError(400, "invalid_rules", "rules is required");
         }
 
         const policy = await db.upsertPolicy({

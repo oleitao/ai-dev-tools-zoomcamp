@@ -24,11 +24,11 @@ export async function runReview({
 
   const provider = options?.provider ?? "heuristic";
   if (provider !== "heuristic" && provider !== "openai") {
-    throw new HttpError(400, "invalid_provider", "options.provider deve ser heuristic|openai");
+    throw new HttpError(400, "invalid_provider", "options.provider must be heuristic|openai");
   }
 
   if (typeof diffText !== "string" || diffText.trim().length === 0) {
-    throw new HttpError(400, "diff_required", "diff é obrigatório (ou PR deve ter diff acessível)");
+    throw new HttpError(400, "diff_required", "diff is required (or the PR must have an accessible diff)");
   }
 
   const parsed = parseUnifiedDiff(diffText);
@@ -36,7 +36,7 @@ export async function runReview({
     throw new HttpError(
       400,
       "diff_empty",
-      "Não foi possível detetar ficheiros no diff (formato unified diff esperado)"
+      "Could not detect files in the diff (expected unified diff format)"
     );
   }
 

@@ -38,19 +38,19 @@ function normalizeReviewResult(raw) {
 
 export async function reviewDiffWithOpenAI({ diffText, openaiApiKey, openaiModel }) {
   if (!openaiApiKey) {
-    throw new HttpError(400, "openai_api_key_missing", "OPENAI_API_KEY é obrigatório");
+    throw new HttpError(400, "openai_api_key_missing", "OPENAI_API_KEY is required");
   }
 
   const prompt = [
-    "És o PR Buddy, um revisor de Pull Requests.",
-    "Objetivo: devolver um review acionável e estruturado.",
+    "You are PR Buddy, a Pull Request reviewer.",
+    "Goal: produce an actionable, structured review.",
     "",
-    "Regras:",
-    "- Responder APENAS com JSON válido (sem markdown).",
-    "- Risco deve ser: low | medium | high.",
-    "- Cada comentário deve ter: type (risk|suggestion|nitpick), message e line (ou null).",
+    "Rules:",
+    "- Reply ONLY with valid JSON (no markdown).",
+    "- risk must be: low | medium | high.",
+    "- Each comment must have: type (risk|suggestion|nitpick), message, and line (or null).",
     "",
-    "Schema esperado:",
+    "Expected schema:",
     "{",
     '  "summary": {"risk":"low|medium|high","highlights":[...],"missingTests":[...]},',
     '  "files": [{"path":"...","risk":"low|medium|high","comments":[...],"missingTests":[...]}],',
@@ -95,4 +95,3 @@ export async function reviewDiffWithOpenAI({ diffText, openaiApiKey, openaiModel
 
   return normalizeReviewResult(parsed);
 }
-

@@ -80,7 +80,7 @@ function renderFiles(review) {
 
   const files = fileItems(review);
   if (!files.length) {
-    root.appendChild(el("p", { className: "muted", text: "Sem ficheiros para mostrar." }));
+    root.appendChild(el("p", { className: "muted", text: "No files to show." }));
     return;
   }
 
@@ -102,7 +102,7 @@ function renderFiles(review) {
 
     const comments = el("div", { className: "comments" });
     if (!file.comments.length) {
-      comments.appendChild(el("p", { className: "muted small", text: "Sem comentários." }));
+      comments.appendChild(el("p", { className: "muted small", text: "No comments." }));
     } else {
       for (const c of file.comments) {
         const item = el("div", { className: "comment" });

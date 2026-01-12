@@ -1,14 +1,14 @@
-# MCP (Model Context Protocol) — workflow sugerido
+# MCP (Model Context Protocol) — suggested workflow
 
-O PR Buddy foi desenhado para funcionar bem num setup “agentic”, onde um assistente consegue:
+PR Buddy is designed to work well in an “agentic” setup, where an assistant can:
 
-- obter o diff de um PR (GitHub)
-- ler ficheiros do repo alvo (filesystem)
-- chamar o backend do PR Buddy para criar reviews e armazenar resultados
+- fetch the diff of a PR (GitHub)
+- read files from the target repo (filesystem)
+- call the PR Buddy backend to create reviews and store results
 
-## Setup típico (GitHub + filesystem)
+## Typical setup (GitHub + filesystem)
 
-Exemplo de configuração (ajustar ao cliente/assistente que usa MCP):
+Example configuration (adjust to your MCP client/assistant):
 
 ```json
 {
@@ -26,16 +26,15 @@ Exemplo de configuração (ajustar ao cliente/assistente que usa MCP):
 }
 ```
 
-## Exemplo de uso (workflow)
+## Example usage (workflow)
 
-1. Usar o MCP de GitHub para obter o diff do PR.
-2. (Opcional) Usar o MCP filesystem para ler testes existentes, configs, etc.
-3. Enviar o diff para o PR Buddy: `POST /api/reviews`.
-4. Guardar/consultar histórico: `GET /api/reviews` + `GET /api/metrics`.
+1. Use the GitHub MCP to fetch the PR diff.
+2. (Optional) Use the filesystem MCP to read existing tests, configs, etc.
+3. Send the diff to PR Buddy: `POST /api/reviews`.
+4. Store/query history: `GET /api/reviews` + `GET /api/metrics`.
 
-## Segurança
+## Security
 
-- Preferir tokens com permissões mínimas necessárias.
-- Limitar roots do filesystem MCP ao repo alvo.
-- Não reenviar segredos para o PR Buddy via diff.
-
+- Prefer tokens with the minimum required permissions.
+- Restrict filesystem MCP roots to the target repo.
+- Don't forward secrets to PR Buddy via diff.

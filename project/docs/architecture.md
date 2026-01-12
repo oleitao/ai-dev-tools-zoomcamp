@@ -1,42 +1,42 @@
-# PR Buddy — Arquitetura
+# PR Buddy — Architecture
 
-## Componentes
+## Components
 
-- **Web UI (SPA estática)**: `project/src/web/` — formulário para colar um diff/URL e visualizar o review por ficheiro + resumo.
-- **API/Backend (Node.js)**: `project/src/server.js` — valida requests, executa o motor de review e persiste resultados.
-- **Motor de review**: `project/src/review/` — parsing de diff + heurísticas + (opcional) chamada a LLM.
-- **DB**: `project/src/db/` — persistência de reviews, políticas e métricas.
-  - **SQLite** (default): usa `node:sqlite` (sem dependências externas).
-  - **Postgres** (opcional): via `pg` (instalação/documentação no README).
+- **Web UI (static SPA)**: `project/src/web/` — form to paste a diff/URL and view per-file comments + final summary.
+- **API/Backend (Node.js)**: `project/src/server.js` — validates requests, runs the review engine, and persists results.
+- **Review engine**: `project/src/review/` — diff parsing + heuristics + (optional) LLM call.
+- **DB**: `project/src/db/` — persistence for reviews, policies, and metrics.
+  - **SQLite** (default): uses `node:sqlite` (no external dependencies).
+  - **Postgres** (optional): via `pg` (installation/documentation in the README).
 
-## Fluxo principal (MVP)
+## Core flow (MVP)
 
-1. O utilizador cola um diff na UI e clica **Review**.
-2. A UI chama `POST /api/reviews` com o diff.
-3. O backend:
-   - faz parse do diff (ficheiros/hunks/linhas)
-   - calcula riscos, sugestões, nitpicks e testes em falta
-   - aplica uma política (se existir)
-   - grava o review e métricas na base de dados
-4. A UI renderiza:
-   - **Resumo final** (risco, highlights, missing tests, checklist)
-   - **Comentários por ficheiro**
+1. The user pastes a diff in the UI and clicks **Review**.
+2. The UI calls `POST /api/reviews` with the diff.
+3. The backend:
+   - parses the diff (files/hunks/lines)
+   - computes risks, suggestions, nitpicks and missing tests
+   - applies a policy (if configured)
+   - stores the review and metrics in the database
+4. The UI renders:
+   - **Final summary** (risk, highlights, missing tests, checklist)
+   - **Per-file comments**
 
-## Extensões (roadmap)
+## Extensions (roadmap)
 
-- **GitHub**: webhook para receber eventos de PR, obter diff/ficheiros e publicar comentários/check-runs.
-- **Políticas “blocking”**: falhar check-run quando `policy.passed=false`.
-- **Avaliação automática de qualidade**: comparar output do PR Buddy com reviews humanos (LLM-as-judge + métricas).
-- **Dashboard**: métricas agregadas (tipos de erros, tempo poupado, padrões por repo).
+- **GitHub**: webhook to receive PR events, fetch diffs/files, and publish review comments/check-runs.
+- **Blocking policies**: fail a check-run when `policy.passed=false`.
+- **Automatic quality evaluation**: compare PR Buddy output with human reviews (LLM-as-judge + metrics).
+- **Dashboard**: aggregated metrics (error types, time saved, hotspots by repo).
 
-## Diagrama (Mermaid)
+## Diagram (Mermaid)
 
 ```mermaid
 flowchart LR
   UI[Web UI] -->|POST /api/reviews| API[API Server]
   API --> Engine[Review Engine]
-  Engine -->|heurísticas| Engine
-  Engine -. opcional .-> LLM[(LLM Provider)]
+  Engine -->|heuristics| Engine
+  Engine -. optional .-> LLM[(LLM Provider)]
   API --> DB[(SQLite/Postgres)]
   API -->|GET /api/reviews| UI
 ```

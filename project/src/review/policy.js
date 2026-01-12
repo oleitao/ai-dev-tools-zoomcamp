@@ -12,11 +12,11 @@ export function evaluatePolicy(policy, analysis) {
     : [];
 
   if (requireTests && missingTests.length > 0) {
-    blockers.push("Faltam testes para mudanças em código de produção.");
+    blockers.push("Missing tests for production code changes.");
   }
 
   if (policy.rules?.blockMergeOnPolicyFailure && blockers.length > 0) {
-    blockers.push("Merge deve ser bloqueado (policy).");
+    blockers.push("Merge must be blocked (policy).");
   }
 
   return {
@@ -26,4 +26,3 @@ export function evaluatePolicy(policy, analysis) {
     warnings
   };
 }
-

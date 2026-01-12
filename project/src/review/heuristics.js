@@ -2,25 +2,25 @@ const TEST_FILE_RE =
   /(^|\/)(__tests__|tests|test|spec)(\/|$)|(\.test\.|\.spec\.)/i;
 
 const HIGH_RISK_PATTERNS = [
-  { re: /\beval\s*\(/, message: "Uso de `eval()` pode abrir vetores de execução arbitrária." },
+  { re: /\beval\s*\(/, message: "Use of `eval()` can enable arbitrary code execution." },
   {
     re: /\bchild_process\b|\bexecSync\s*\(|\bexec\s*\(/,
-    message: "Execução de comandos do sistema deve ser validada/sanitizada."
+    message: "System command execution should be validated/sanitized."
   },
   {
     re: /\bpassword\b|\bsecret\b|\bapi[_-]?key\b/i,
-    message: "Possível exposição de credenciais/segredos; garantir que não ficam hardcoded."
+    message: "Possible exposure of credentials/secrets; ensure they are not hardcoded."
   }
 ];
 
 const NITPICK_PATTERNS = [
-  { re: /\bconsole\.log\s*\(/, message: "Remover `console.log()` antes de fazer merge." },
-  { re: /\bdebugger\b/, message: "Remover `debugger`." },
-  { re: /\s+$/, message: "Remover trailing whitespace." }
+  { re: /\bconsole\.log\s*\(/, message: "Remove `console.log()` before merging." },
+  { re: /\bdebugger\b/, message: "Remove `debugger`." },
+  { re: /\s+$/, message: "Remove trailing whitespace." }
 ];
 
 const SUGGESTION_PATTERNS = [
-  { re: /\bTODO\b|\bFIXME\b/, message: "Resolver/justificar TODO/FIXME ou criar issue associada." }
+  { re: /\bTODO\b|\bFIXME\b/, message: "Resolve/justify TODO/FIXME or create a tracking issue." }
 ];
 
 function isTestFile(path) {
@@ -92,12 +92,12 @@ export function analyzeParsedDiff(parsed, { maxCommentsPerFile = 15 } = {}) {
 
     const fileIsTest = isTestFile(file.path);
     if (!fileIsTest && !hasTestChanges && changedLines > 0) {
-      missingTests.push(`Adicionar/atualizar testes para cobrir mudanças em \`${file.path}\`.`);
-      missingTestsSummary.push(`Sem alterações em testes apesar de mudanças em \`${file.path}\`.`);
+      missingTests.push(`Add/update tests to cover changes in \`${file.path}\`.`);
+      missingTestsSummary.push(`No test changes despite changes in \`${file.path}\`.`);
     }
 
     if (risk === "high") {
-      highlights.push(`Risco alto em \`${file.path}\` (validar segurança/impacto).`);
+      highlights.push(`High risk in \`${file.path}\` (validate security/impact).`);
     }
 
     fileReviews.push({
@@ -112,17 +112,17 @@ export function analyzeParsedDiff(parsed, { maxCommentsPerFile = 15 } = {}) {
   for (const fr of fileReviews) overallRisk = riskMax(overallRisk, fr.risk);
 
   const checklist = [
-    "Confirmar comportamento esperado (happy-path e edge-cases).",
-    "Verificar handling de erros e validação de input.",
-    "Garantir que não há logs/debug code em produção.",
-    "Atualizar documentação/README se aplicável."
+    "Confirm expected behavior (happy path and edge cases).",
+    "Check error handling and input validation.",
+    "Ensure there is no debug/log code in production.",
+    "Update documentation/README if applicable."
   ];
-  if (missingTestsSummary.length > 0) checklist.unshift("Adicionar/atualizar testes para as mudanças.");
+  if (missingTestsSummary.length > 0) checklist.unshift("Add/update tests for the changes.");
 
   return {
     summary: {
       risk: overallRisk,
-      highlights: highlights.length > 0 ? highlights : ["Sem riscos óbvios detectados pelas heurísticas."],
+      highlights: highlights.length > 0 ? highlights : ["No obvious risks detected by heuristics."],
       missingTests: missingTestsSummary
     },
     files: fileReviews,
@@ -133,4 +133,3 @@ export function analyzeParsedDiff(parsed, { maxCommentsPerFile = 15 } = {}) {
     }
   };
 }
-

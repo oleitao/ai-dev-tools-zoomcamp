@@ -18,13 +18,13 @@ export async function fetchGithubPrDiff({ prUrl, githubToken }) {
     throw new HttpError(
       400,
       "github_token_missing",
-      "GITHUB_TOKEN é obrigatório para source=github"
+      "GITHUB_TOKEN is required for source=github"
     );
   }
 
   const parsed = parseGithubPrUrl(prUrl);
   if (!parsed) {
-    throw new HttpError(400, "invalid_pr_url", "URL de PR do GitHub inválida");
+    throw new HttpError(400, "invalid_pr_url", "Invalid GitHub PR URL");
   }
 
   const apiUrl = `https://api.github.com/repos/${parsed.owner}/${parsed.repo}/pulls/${parsed.number}`;
@@ -42,4 +42,3 @@ export async function fetchGithubPrDiff({ prUrl, githubToken }) {
 
   return await res.text();
 }
-
