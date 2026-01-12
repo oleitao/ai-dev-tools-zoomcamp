@@ -1,101 +1,143 @@
-## Projects 
+# PR Buddy — agente que revê Pull Requests
 
-[Video: Submit and evaluate Zoomcamp projects 🎥](https://www.loom.com/share/4f5c155c550e48ddb54b71ba76516b04)
+## Problema
 
+Code reviews em Pull Requests tendem a ser **lentos**, **inconsistentes** e dependentes da disponibilidade do reviewer. Isso aumenta o lead time e deixa escapar problemas comuns: riscos (segurança/impacto), qualidade de código, ausência de testes, e detalhes (“nitpicks”) que acumulam dívida técnica.
 
-The idea is that you now apply everything we learned so far yourself.
+## Solução (MVP)
 
-There are two projects in this course
+O **PR Buddy** recebe um **diff** (ou uma **URL de PR do GitHub**) e devolve:
 
-* Attempt 1
-* Attempt 2
+- **Resumo final**: risco global, highlights, testes em falta e checklist.
+- **Comentários por ficheiro**: riscos, sugestões, nitpicks e “missing tests”.
+- **Políticas**: regras simples (ex.: falhar se houver mudanças em código sem testes).
+- **Métricas**: contagem de reviews, distribuição de risco e frequência de missing-tests.
 
-You only need to complete one (but you can do both if you have time and energy).
+O motor atual usa **heurísticas determinísticas** (sem chamadas externas). A arquitetura suporta evoluir para LLMs e integração GitHub.
 
+## Arquitetura
 
-This is what you need to do for each project:
+Ver `project/docs/architecture.md`.
 
-* Think of a problem that's interesting for you
-* Describe this problem
-* Create the frontend, backend and describe their communication with API specs
-    * You can do it in any order:
-    * Frontend first, like shown in the course
-    * Specs first 
-    * Backend first
-    * But all three have to be done
-* Make sure the application is thouroughly tested, containerized and deployed
-* Make sure you review your peers - or you won't get a certificate of graduation 
+## Tecnologias
 
+- **Backend/API**: Node.js (HTTP server, sem framework) — `project/src/`
+- **Frontend**: SPA estática (HTML/CSS/JS, ES Modules) — `project/src/web/`
+- **DB**:
+  - SQLite por default via `node:sqlite` (sem dependências externas)
+  - Postgres suportado via `pg` (opcional)
+- **Contrato de API**: OpenAPI 3 — `project/openapi.yaml`
+- **Testes**: `node --test` (unit + integration) — `project/tests/`
+- **Containerização**: Dockerfile + docker-compose — `project/Dockerfile`, `project/docker-compose.yml`
+- **CI/CD**: GitHub Actions — `.github/workflows/pr-buddy.yml`
 
-## Peer reviewing
+## API (OpenAPI)
 
-> [!IMPORTANT]  
-> To evaluate the projects, we'll use peer reviewing. This is a great opportunity for you to learn from each other.
-> * To get points for your project, you need to evaluate 3 projects of your peers
-> * You get 3 extra points for each evaluation
-> * If you don't evaluate your peers, you fail the project
+- Especificação: `project/openapi.yaml`
+- Endpoint servida pelo backend: `GET /api/openapi.yaml`
 
+## Como correr (local)
 
-## Criteria 
+Pré-requisitos: Node.js `>=22`.
 
-1. Problem description (README)
-- The problem is not described. (0 points)
-- The problem is described briefly, but it is unclear what the system does or what functionality is expected. (1 point)
-- The README clearly describes the problem, the system’s functionality, and what the project is expected to do. (2 points)
+```bash
+cd project
+cp .env.example .env
+npm test
+npm run dev
+```
 
-2. AI system development (tools, workflow, MCP)
-- No description of how the system was built or how AI tools were used. (0 points)
-- The project describes how AI tools were used to build the system (e.g. coding assistants, prompts, workflows, AGENTS.md or similar guidance). (1 point)
-- The project clearly documents AI-assisted system development and additionally describes how MCP was used (e.g. MCP server, tools, or workflow). (2 points)
+Abrir: `http://127.0.0.1:3000`
 
-3. Technologies and system architecture
-- Technologies used in the project are not described or are unclear. (0 points)
-- The main technologies are mentioned (e.g. frontend framework, backend framework, database), but without explaining their roles. (1 point)
-- The project clearly describes the technologies used (frontend, backend, database, containerization, CI/CD) and explains how they fit into the system architecture. (2 points)
+## Base de dados (SQLite / Postgres)
 
-4. Front-end implementation
-- No front-end or non-functional front-end. (0 points)
-- A functional front-end exists, but structure is unclear or backend calls are scattered. (1 point)
-- Front-end is functional and well-structured, with centralized backend communication. (2 points)
-- Front-end is functional, well-structured, and includes tests covering core logic, with clear instructions on how to run them. (3 points)
+Por default usa SQLite:
 
-5. API contract (OpenAPI specifications)
-- No OpenAPI specification. (0 points)
-- OpenAPI specification exists but is incomplete or loosely aligned with front-end needs. (1 point)
-- OpenAPI specification fully reflects front-end requirements and is used as the contract for backend development. (2 points)
+- `DATABASE_URL=sqlite:./data/pr-buddy.sqlite`
 
-6. Back-end implementation
-- No back-end or back-end does not follow the API contract. (0 points)
-- Back-end implements required endpoints but has limited structure or documentation. (1 point)
-- Back-end is well-structured and follows the OpenAPI specifications. (2 points)
-- Back-end is well-structured, follows the OpenAPI specifications, and includes tests covering core functionality, clearly documented. (3 points)
+Para Postgres (opcional):
 
-7. Database integration
-- No database or persistent storage. (0 points)
-- Database is integrated, but configuration or usage is minimal or poorly documented. (1 point)
-- Database layer is properly integrated, supports different environments (e.g. SQLite and Postgres), and is documented. (2 points)
+```bash
+cd project
+npm install pg
+docker compose --profile postgres up -d postgres
+export DATABASE_URL="postgres://prbuddy:prbuddy@localhost:5432/prbuddy"
+npm run dev
+```
 
-8. Containerization
-- No containerization. (0 points)
-- Dockerfiles exist, but running the full system requires manual steps. (1 point)
-- The entire system runs via Docker or docker-compose with clear instructions. (2 points)
+## Provider LLM (OpenAI) — opcional
 
-9. Integration testing
-- No integration tests. (0 points)
-- Integration tests exist but are limited or not clearly separated from unit tests. (1 point)
-- Integration tests are clearly separated, cover key workflows (including database interactions), and are documented. (2 points)
+O modo `openai` usa `OPENAI_API_KEY` e `OPENAI_MODEL` para gerar o review via API (mantendo o mesmo schema de output).
 
-10. Deployment
-- Application is not deployed. (0 points)
-- Deployment steps are described, but no working deployment is shown. (1 point)
-- Application is deployed to the cloud with a working URL or clear proof of deployment. (2 points)
+- Sem key, o backend devolve `400 openai_api_key_missing`.
+- Recomenda-se manter `heuristic` como default para desenvolvimento offline e CI.
 
-11. CI/CD pipeline
-- No CI/CD pipeline. (0 points)
-- CI pipeline runs tests automatically. (1 point)
-- CI/CD pipeline runs tests and deploys the application when tests pass. (2 points)
+## Testes
 
-12. Reproducibility
-- Project cannot be run with the provided instructions. (0 points)
-- Project can be run, but setup or run instructions are incomplete. (1 point)
-- Clear instructions exist to set up, run, test, and deploy the system end-to-end. (2 points)
+- Unit tests: `node --test tests/unit`
+- Integration tests (workflow + DB): `node --test tests/integration`
+- Tudo: `npm test`
+
+## Docker
+
+```bash
+cd project
+docker compose up --build
+```
+
+Abrir: `http://localhost:3000`
+
+## CI/CD (GitHub Actions)
+
+Workflow: `.github/workflows/pr-buddy.yml`
+
+- `test`: corre `npm test` em `project/` com Node.js 22
+- `deploy` (opcional): dispara um deploy hook no Render quando existe `RENDER_DEPLOY_HOOK_URL` (GitHub Secret)
+
+## Deploy
+
+Deploy “blueprint” (Render, via Docker):
+
+- Criar um serviço “Web Service” a partir do repositório e selecionar **Docker**
+- Definir variáveis:
+  - `HOST=0.0.0.0`
+  - `PORT=3000`
+  - `DATABASE_URL=sqlite:./data/pr-buddy.sqlite` (ou Postgres)
+- Para SQLite com persistência, configurar um **Disk** montado em `/app/data`
+- (Opcional) adicionar Postgres e configurar `DATABASE_URL` + `npm install pg` no build (ou incluir como dependência)
+- Para auto-deploy via CI:
+  - criar um **Deploy Hook** no Render
+  - adicionar o URL como GitHub Secret `RENDER_DEPLOY_HOOK_URL`
+
+URL/Proof: adicionar aqui após deploy.
+
+## Desenvolvimento assistido por IA + MCP
+
+Durante o desenvolvimento, o PR Buddy foi estruturado para suportar um workflow “agentic”:
+
+- **Ferramentas de IA**: Codex/assistentes para iterar sobre contrato OpenAPI, parsing de diff, e heurísticas.
+- **MCP (Model Context Protocol)**: configuração sugerida para ligar a um servidor MCP de GitHub + filesystem para:
+  - obter diffs de PRs diretamente do GitHub
+  - navegar o repo alvo e recolher contexto extra (ficheiros, testes, configs)
+
+Detalhes e exemplo de configuração: `project/mcp/README.md`.
+Notas de desenvolvimento (prompts/decisões): `project/docs/ai-workflow.md`.
+
+## Estrutura do projeto
+
+- `project/openapi.yaml` — contrato da API
+- `project/src/server.js` — entrypoint do backend
+- `project/src/app.js` — router + handlers
+- `project/src/review/` — parsing/análise/políticas
+- `project/src/db/` — SQLite/Postgres
+- `project/src/web/` — frontend
+- `project/tests/` — unit + integration tests
+
+Rubrica (onde está cada item): `project/docs/rubric-mapping.md`.
+
+## Roadmap (extensões fortes)
+
+- Integração GitHub (webhook) + publicação automática de comentários/check-runs
+- “Políticas” blocking (bloquear merge se faltar teste)
+- Avaliação automática da qualidade do review (comparar com reviews humanos)
+- Dashboard com métricas (tipos de erros, tempo poupado, hotspots por repo)
