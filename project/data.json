@@ -1,0 +1,177 @@
+{
+  "rubric": [
+    {
+      "criterion": "Problem description (README)",
+      "levels": [
+        { "points": 0, "description": "The problem is not described." },
+        {
+          "points": 1,
+          "description": "The problem is described briefly, but it is unclear what the system does or what functionality is expected."
+        },
+        {
+          "points": 2,
+          "description": "The README clearly describes the problem, the system’s functionality, and what the project is expected to do."
+        }
+      ]
+    },
+    {
+      "criterion": "AI system development (tools, workflow, MCP)",
+      "levels": [
+        { "points": 0, "description": "No description of how the system was built or how AI tools were used." },
+        {
+          "points": 1,
+          "description": "The project describes how AI tools were used to build the system (e.g. coding assistants, prompts, workflows, AGENTS.md or similar guidance)."
+        },
+        {
+          "points": 2,
+          "description": "The project clearly documents AI-assisted system development and additionally describes how MCP was used (e.g. MCP server, tools, or workflow)."
+        }
+      ]
+    },
+    {
+      "criterion": "Technologies and system architecture",
+      "levels": [
+        { "points": 0, "description": "Technologies used in the project are not described or are unclear." },
+        {
+          "points": 1,
+          "description": "The main technologies are mentioned (e.g. frontend framework, backend framework, database), but without explaining their roles."
+        },
+        {
+          "points": 2,
+          "description": "The project clearly describes the technologies used (frontend, backend, database, containerization, CI/CD) and explains how they fit into the system architecture."
+        }
+      ]
+    },
+    {
+      "criterion": "Front-end implementation",
+      "levels": [
+        { "points": 0, "description": "No front-end or non-functional front-end." },
+        {
+          "points": 1,
+          "description": "A functional front-end exists, but structure is unclear or backend calls are scattered."
+        },
+        {
+          "points": 2,
+          "description": "Front-end is functional and well-structured, with centralized backend communication."
+        },
+        {
+          "points": 3,
+          "description": "Front-end is functional, well-structured, and includes tests covering core logic, with clear instructions on how to run them."
+        }
+      ]
+    },
+    {
+      "criterion": "API contract (OpenAPI specifications)",
+      "levels": [
+        { "points": 0, "description": "No OpenAPI specification." },
+        {
+          "points": 1,
+          "description": "OpenAPI specification exists but is incomplete or loosely aligned with front-end needs."
+        },
+        {
+          "points": 2,
+          "description": "OpenAPI specification fully reflects front-end requirements and is used as the contract for backend development."
+        }
+      ]
+    },
+    {
+      "criterion": "Back-end implementation",
+      "levels": [
+        { "points": 0, "description": "No back-end or back-end does not follow the API contract." },
+        {
+          "points": 1,
+          "description": "Back-end implements required endpoints but has limited structure or documentation."
+        },
+        {
+          "points": 2,
+          "description": "Back-end is well-structured and follows the OpenAPI specifications."
+        },
+        {
+          "points": 3,
+          "description": "Back-end is well-structured, follows the OpenAPI specifications, and includes tests covering core functionality, clearly documented."
+        }
+      ]
+    },
+    {
+      "criterion": "Database integration",
+      "levels": [
+        { "points": 0, "description": "No database or persistent storage." },
+        {
+          "points": 1,
+          "description": "Database is integrated, but configuration or usage is minimal or poorly documented."
+        },
+        {
+          "points": 2,
+          "description": "Database layer is properly integrated, supports different environments (e.g. SQLite and Postgres), and is documented."
+        }
+      ]
+    },
+    {
+      "criterion": "Containerization",
+      "levels": [
+        { "points": 0, "description": "No containerization." },
+        {
+          "points": 1,
+          "description": "Dockerfiles exist, but running the full system requires manual steps."
+        },
+        {
+          "points": 2,
+          "description": "The entire system runs via Docker or docker-compose with clear instructions."
+        }
+      ]
+    },
+    {
+      "criterion": "Integration testing",
+      "levels": [
+        { "points": 0, "description": "No integration tests." },
+        {
+          "points": 1,
+          "description": "Integration tests exist but are limited or not clearly separated from unit tests."
+        },
+        {
+          "points": 2,
+          "description": "Integration tests are clearly separated, cover key workflows (including database interactions), and are documented."
+        }
+      ]
+    },
+    {
+      "criterion": "Deployment",
+      "levels": [
+        { "points": 0, "description": "Application is not deployed." },
+        {
+          "points": 1,
+          "description": "Deployment steps are described, but no working deployment is shown."
+        },
+        {
+          "points": 2,
+          "description": "Application is deployed to the cloud with a working URL or clear proof of deployment."
+        }
+      ]
+    },
+    {
+      "criterion": "CI/CD pipeline",
+      "levels": [
+        { "points": 0, "description": "No CI/CD pipeline." },
+        { "points": 1, "description": "CI pipeline runs tests automatically." },
+        {
+          "points": 2,
+          "description": "CI/CD pipeline runs tests and deploys the application when tests pass."
+        }
+      ]
+    },
+    {
+      "criterion": "Reproducibility",
+      "levels": [
+        { "points": 0, "description": "Project cannot be run with the provided instructions." },
+        {
+          "points": 1,
+          "description": "Project can be run, but setup or run instructions are incomplete."
+        },
+        {
+          "points": 2,
+          "description": "Clear instructions exist to set up, run, test, and deploy the system end-to-end."
+        }
+      ]
+    }
+  ]
+}

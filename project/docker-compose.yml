@@ -1,0 +1,32 @@
+services:
+  pr-buddy:
+    build:
+      context: .
+    ports:
+      - "3000:3000"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATABASE_URL: ${DATABASE_URL:-sqlite:./data/pr-buddy.sqlite}
+      MAX_BODY_BYTES: ${MAX_BODY_BYTES:-2000000}
+      # Set these via `project/.env` (do NOT hardcode secrets here)
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+    volumes:
+      - ./data:/app/data
+
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_USER: prbuddy
+      POSTGRES_PASSWORD: prbuddy
+      POSTGRES_DB: prbuddy
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

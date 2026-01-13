@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PR Buddy</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="container">
+      <div class="brand">
+        <div class="logo">PR</div>
+        <div>
+          <h1>PR Buddy</h1>
+          <p class="muted">Agent for fast, consistent, actionable PR reviews.</p>
+        </div>
+      </div>
+      <div class="status" id="health"></div>
+    </header>
+
+    <main class="container grid">
+      <section class="card">
+        <h2>Input</h2>
+
+        <div class="tabs" role="tablist" aria-label="Review source">
+          <button class="tab active" id="tab-diff" type="button">Diff</button>
+          <button class="tab" id="tab-github" type="button">GitHub PR</button>
+        </div>
+
+        <div id="panel-diff" class="panel">
+          <label class="label" for="diff">Unified diff</label>
+          <textarea
+            id="diff"
+            class="textarea"
+            placeholder="Paste the diff here (git diff / GitHub .diff)…"
+            rows="12"
+          ></textarea>
+        </div>
+
+        <div id="panel-github" class="panel hidden">
+          <label class="label" for="prUrl">GitHub PR URL</label>
+          <input
+            id="prUrl"
+            class="input"
+            placeholder="https://github.com/org/repo/pull/123"
+            type="url"
+          />
+          <p class="muted small">
+            Requires <code>GITHUB_TOKEN</code> on the backend to fetch the diff.
+          </p>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="label" for="provider">Provider</label>
+            <select id="provider" class="select">
+              <option value="heuristic" selected>heuristic (offline)</option>
+              <option value="openai">openai (API key)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="label" for="policyId">Policy</label>
+            <select id="policyId" class="select"></select>
+          </div>
+          <div class="field">
+            <label class="label" for="maxCommentsPerFile">Max comments per file</label>
+            <input id="maxCommentsPerFile" class="input" type="number" min="1" max="50" value="15" />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="btnReview" class="button primary" type="button">Review</button>
+          <button id="btnClear" class="button" type="button">Clear</button>
+        </div>
+
+        <div id="error" class="error hidden"></div>
+      </section>
+
+      <section class="card">
+        <div class="row space-between">
+          <h2>Summary</h2>
+          <div id="metrics" class="muted small"></div>
+        </div>
+
+        <div id="summary" class="summary empty">
+          <p class="muted">No results yet. Submit a diff to generate a review.</p>
+        </div>
+      </section>
+
+      <section class="card span-2">
+        <div class="row space-between">
+          <h2>Comments by file</h2>
+          <div id="history" class="history"></div>
+        </div>
+
+        <div id="files" class="files empty">
+          <p class="muted">No files to show.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="container footer">
+      <p class="muted small">
+        OpenAPI: <a href="/api/openapi.yaml">/api/openapi.yaml</a>
+      </p>
+    </footer>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

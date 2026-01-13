@@ -1,1 +1,6 @@
 .venv
+node_modules
+.DS_Store
+project/.env
+project/data
+project/*.sqlite

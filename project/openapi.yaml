@@ -1,0 +1,419 @@
+openapi: 3.0.3
+info:
+  title: PR Buddy API
+  version: 0.1.0
+  description: |
+    API for creating and retrieving AI-assisted Pull Request reviews.
+
+servers:
+  - url: http://localhost:3000
+
+tags:
+  - name: Health
+  - name: Docs
+  - name: Reviews
+  - name: Policies
+  - name: Metrics
+
+paths:
+  /api/health:
+    get:
+      tags: [Health]
+      summary: Health check
+      operationId: getHealth
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /api/openapi.yaml:
+    get:
+      tags: [Docs]
+      summary: OpenAPI specification (YAML)
+      operationId: getOpenApiYaml
+      responses:
+        "200":
+          description: OpenAPI YAML
+          content:
+            text/yaml:
+              schema:
+                type: string
+
+  /api/reviews:
+    post:
+      tags: [Reviews]
+      summary: Create a PR review from a diff or PR URL
+      operationId: createReview
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewRequest"
+      responses:
+        "201":
+          description: Review created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    get:
+      tags: [Reviews]
+      summary: List recent PR reviews
+      operationId: listReviews
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 20 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewListResponse"
+
+  /api/reviews/{reviewId}:
+    get:
+      tags: [Reviews]
+      summary: Get a PR review by id
+      operationId: getReview
+      parameters:
+        - in: path
+          name: reviewId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Review
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewResponse"
+        "404":
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/policies:
+    post:
+      tags: [Policies]
+      summary: Create or update a policy
+      operationId: upsertPolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertPolicyRequest"
+      responses:
+        "200":
+          description: Policy upserted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PolicyResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    get:
+      tags: [Policies]
+      summary: List policies
+      operationId: listPolicies
+      responses:
+        "200":
+          description: List of policies
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PolicyListResponse"
+
+  /api/metrics:
+    get:
+      tags: [Metrics]
+      summary: Aggregate review metrics
+      operationId: getMetrics
+      responses:
+        "200":
+          description: Metrics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MetricsResponse"
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, version]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        version:
+          type: string
+
+    CreateReviewRequest:
+      type: object
+      required: [source]
+      properties:
+        source:
+          type: string
+          enum: [diff, github]
+        diff:
+          type: string
+          description: Unified diff text (required when source=diff)
+        prUrl:
+          type: string
+          format: uri
+          description: GitHub PR URL (required when source=github)
+        options:
+          type: object
+          properties:
+            provider:
+              type: string
+              enum: [heuristic, openai]
+              default: heuristic
+            policyId:
+              type: string
+              description: Policy id to apply during evaluation
+            maxCommentsPerFile:
+              type: integer
+              minimum: 1
+              maximum: 50
+              default: 15
+      oneOf:
+        - required: [source, diff]
+          properties:
+            source: { type: string, enum: [diff] }
+        - required: [source, prUrl]
+          properties:
+            source: { type: string, enum: [github] }
+
+    ReviewResponse:
+      type: object
+      required: [review]
+      properties:
+        review:
+          $ref: "#/components/schemas/Review"
+
+    ReviewListResponse:
+      type: object
+      required: [reviews, total, limit, offset]
+      properties:
+        reviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/Review"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    Review:
+      type: object
+      required: [id, createdAt, source, result]
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        source:
+          type: string
+          enum: [diff, github]
+        prUrl:
+          type: string
+          format: uri
+          nullable: true
+        result:
+          $ref: "#/components/schemas/ReviewResult"
+
+    ReviewResult:
+      type: object
+      required: [summary, files, checklist, policy]
+      properties:
+        summary:
+          $ref: "#/components/schemas/ReviewSummary"
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileReview"
+        checklist:
+          type: array
+          items: { type: string }
+        policy:
+          $ref: "#/components/schemas/PolicyEvaluation"
+
+    ReviewSummary:
+      type: object
+      required: [risk, highlights, missingTests]
+      properties:
+        risk:
+          type: string
+          enum: [low, medium, high]
+        highlights:
+          type: array
+          items: { type: string }
+        missingTests:
+          type: array
+          items: { type: string }
+
+    FileReview:
+      type: object
+      required: [path, risk, comments, missingTests]
+      properties:
+        path:
+          type: string
+        risk:
+          type: string
+          enum: [low, medium, high]
+        comments:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReviewComment"
+        missingTests:
+          type: array
+          items: { type: string }
+
+    ReviewComment:
+      type: object
+      required: [type, message]
+      properties:
+        type:
+          type: string
+          enum: [risk, suggestion, nitpick]
+        message:
+          type: string
+        line:
+          type: integer
+          nullable: true
+
+    PolicyEvaluation:
+      type: object
+      required: [policyId, passed, blockers, warnings]
+      properties:
+        policyId:
+          type: string
+          nullable: true
+        passed:
+          type: boolean
+        blockers:
+          type: array
+          items: { type: string }
+        warnings:
+          type: array
+          items: { type: string }
+
+    UpsertPolicyRequest:
+      type: object
+      required: [name, rules]
+      properties:
+        id:
+          type: string
+          description: If provided, updates an existing policy
+        name:
+          type: string
+        rules:
+          $ref: "#/components/schemas/PolicyRules"
+        makeDefault:
+          type: boolean
+          default: false
+
+    PolicyRules:
+      type: object
+      required: [requireTestsForSourceChanges]
+      properties:
+        requireTestsForSourceChanges:
+          type: boolean
+          description: If true, the review fails when source files change without tests.
+        blockMergeOnPolicyFailure:
+          type: boolean
+          default: false
+
+    PolicyResponse:
+      type: object
+      required: [policy]
+      properties:
+        policy:
+          $ref: "#/components/schemas/Policy"
+
+    PolicyListResponse:
+      type: object
+      required: [policies]
+      properties:
+        policies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Policy"
+
+    Policy:
+      type: object
+      required: [id, createdAt, name, rules, isDefault]
+      properties:
+        id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+        rules:
+          $ref: "#/components/schemas/PolicyRules"
+        isDefault:
+          type: boolean
+
+    MetricsResponse:
+      type: object
+      required: [metrics]
+      properties:
+        metrics:
+          $ref: "#/components/schemas/Metrics"
+
+    Metrics:
+      type: object
+      required: [totalReviews, riskCounts, missingTestsReviews]
+      properties:
+        totalReviews:
+          type: integer
+        riskCounts:
+          type: object
+          required: [low, medium, high]
+          properties:
+            low: { type: integer }
+            medium: { type: integer }
+            high: { type: integer }
+        missingTestsReviews:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
