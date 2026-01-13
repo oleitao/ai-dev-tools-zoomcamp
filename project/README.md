@@ -15,6 +15,10 @@ Pull Request code reviews tend to be **slow**, **inconsistent**, and dependent o
 
 The current engine uses **deterministic heuristics** (no external calls). The architecture supports evolving to LLMs and GitHub integration.
 
+## Screenshots
+
+![PR Buddy web UI](images/app_web.png)
+
 ## Architecture
 
 See `project/docs/architecture.md`.
@@ -49,6 +53,13 @@ npm run dev
 
 Open: `http://127.0.0.1:3000`
 
+## GitHub PR URLs
+
+When using **GitHub PR URL** as the input source, PR Buddy must download the PR diff first:
+
+- For **public** PRs, PR Buddy will try the unauthenticated `https://github.com/<org>/<repo>/pull/<n>.diff` endpoint.
+- For **private** PRs (or restricted access), you must set `GITHUB_TOKEN` in `project/.env` (recommended).
+
 ## Database (SQLite / Postgres)
 
 By default it uses SQLite:
@@ -65,6 +76,8 @@ export DATABASE_URL="postgres://prbuddy:prbuddy@localhost:5432/prbuddy"
 npm run dev
 ```
 
+![Installing pg for Postgres support](images/npm_install_pg.png)
+
 ## LLM provider (OpenAI) — optional
 
 `openai` mode uses `OPENAI_API_KEY` and `OPENAI_MODEL` to generate a review via API (keeping the same output schema).
@@ -77,6 +90,8 @@ npm run dev
 - Unit tests: `node --test tests/unit`
 - Integration tests (workflow + DB): `node --test tests/integration`
 - All: `npm test`
+
+![Running the test suite](images/npm_test.png)
 
 ## Docker
 

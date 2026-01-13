@@ -1,7 +1,6 @@
 .venv
 node_modules
 .DS_Store
-.env
 project/.env
 project/data
 project/*.sqlite

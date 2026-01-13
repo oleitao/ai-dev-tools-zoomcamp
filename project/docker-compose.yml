@@ -9,6 +9,7 @@ services:
       PORT: 3000
       DATABASE_URL: ${DATABASE_URL:-sqlite:./data/pr-buddy.sqlite}
       MAX_BODY_BYTES: ${MAX_BODY_BYTES:-2000000}
+      # Set these via `project/.env` (do NOT hardcode secrets here)
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
@@ -29,4 +30,3 @@ services:
 
 volumes:
   pgdata:
-

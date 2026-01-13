@@ -12,12 +12,22 @@ export function getConfig(env) {
     throw new Error(`Invalid MAX_BODY_BYTES: ${env.MAX_BODY_BYTES}`);
   }
 
+  const githubToken =
+    typeof env.GITHUB_TOKEN === "string" && env.GITHUB_TOKEN.trim() !== ""
+      ? env.GITHUB_TOKEN.trim()
+      : null;
+
+  const openaiApiKey =
+    typeof env.OPENAI_API_KEY === "string" && env.OPENAI_API_KEY.trim() !== ""
+      ? env.OPENAI_API_KEY.trim()
+      : null;
+
   return {
     port,
     host,
     databaseUrl,
-    githubToken: env.GITHUB_TOKEN ?? null,
-    openaiApiKey: env.OPENAI_API_KEY ?? null,
+    githubToken,
+    openaiApiKey,
     openaiModel: env.OPENAI_MODEL ?? "gpt-4o-mini",
     maxBodyBytes,
     publicBaseUrl: env.PUBLIC_BASE_URL ?? null

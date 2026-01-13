@@ -1,7 +1,10 @@
 import http from "node:http";
+import { loadEnvFile } from "./env.js";
 import { getConfig } from "./config.js";
 import { createDb } from "./db/index.js";
 import { createApp } from "./app.js";
+
+await loadEnvFile(".env");
 
 const config = getConfig(process.env);
 const db = await createDb(config);
